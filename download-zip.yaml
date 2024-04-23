@@ -1,0 +1,31 @@
+name: 'Download Zip from Cloud Storage'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+    download-zip:
+        runs-on: ubuntu-latest
+
+        permissions:
+          contents: 'read'
+          id-token: 'write'
+
+        steps:
+        - name: Checkout Repository
+          uses: 'actions/checkout@v4'
+
+        - id: 'auth'
+          uses: 'google-github-actions/auth@v2'
+          with:
+            workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+            service_account: ${{ secrets.SERVICE_ACCOUNT }}
+
+        - name: 'Download Zip'
+          run: |
+            gcloud storage cp gs://test-directory/test-v1.zip test-v1.zip
+            unzip test-v1.zip -d test-v1 && rm test-v1.zip
+            ls -l
+            ls -l test-v1
